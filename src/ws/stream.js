@@ -17,11 +17,14 @@ const stream = ( socket ) => {
 
 
     socket.on( 'sdp', ( data ) => {
+        console.log('From ', data.sender , ' to ', data.to, data.description.type);
         socket.to( data.to ).emit( 'sdp', { description: data.description, sender: data.sender } );
+
     } );
 
 
     socket.on( 'ice candidates', ( data ) => {
+        console.log('From ', data.sender , ' to ', data.to, 'candidate');
         socket.to( data.to ).emit( 'ice candidates', { candidate: data.candidate, sender: data.sender } );
     } );
 
