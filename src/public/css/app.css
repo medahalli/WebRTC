@@ -35,6 +35,10 @@
     background: transparent;
 }
 
+.button{
+    color:black;
+}
+
 .chat-box{
     bottom: 0px;
     right: 0;
@@ -156,10 +160,14 @@
 .record-option{
     height: 200px;
     border-radius: 10%;
-    border: 1px solid #17a2b8;
+    border: 1px solid #7321b6;
     cursor: pointer;
     padding: 10px;
     vertical-align: middle;
+}
+
+#navbar{
+    color:rgb(102, 61, 196);
 }
 
 
@@ -179,7 +187,7 @@
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
-    border: 1px solid #17a2b8;
+    border: 1px solid #7d17b8;
     width: 80%;
 }
 

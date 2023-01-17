@@ -1,11 +1,12 @@
 doctype html
 head
-  title Multi-User Video Call
+  title zoom'eirb
   meta(content='width=device-width, initial-scale=1', name='viewport')
   link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css', integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh', crossorigin='anonymous')
   link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.7.2/css/all.css', integrity='sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr', crossorigin='anonymous')
   link(rel='stylesheet', href='/css/app.css', type='text/css')
   script(src='/socket.io/socket.io.js')
+  link(rel='icon'  href='css/logo.png')
   script(type='module', src='js/rtc.js')
   script(type='module', src='js/events.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js', integrity='sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4=', crossorigin='anonymous')
@@ -13,74 +14,98 @@ head
   script(src='https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js')
   script(src='https://cdn.rawgit.com/yahoo/xss-filters/master/dist/xss-filters.js')
   script(src='js/autolink.js')
-#recording-options-modal.custom-modal
-  .custom-modal-content
-    .row.text-center
-      .col-md-6.mb-2
-        span#record-video.record-option Record video
-      .col-md-6.mb-2
-        span#record-screen.record-option Record screen
-    .row.mt-3
-      .col-md-12.text-center
-        button#closeModal.btn.btn-outline-danger Close
-nav.navbar.fixed-top.bg-info.rounded-0.d-print-none
-  .text-white Video Call
-  .pull-right.room-comm(hidden='')
-    span.text-white.mr-5
-      | Unique Identifier: 
-      span#randomNumber
-    button#toggle-video.btn.btn-sm.rounded-0.btn-no-effect(title='Hide Video')
-      i.fa.fa-video.text-white
-    button#toggle-mute.btn.btn-sm.rounded-0.btn-no-effect(title='Mute')
-      i.fa.fa-microphone-alt.text-white
-    button#share-screen.btn.btn-sm.rounded-0.btn-no-effect(title='Share screen')
-      i.fa.fa-desktop.text-white
-    button#record.btn.btn-sm.rounded-0.btn-no-effect(title='Record')
-      i.fa.fa-dot-circle.text-white
-    button#toggle-chat-pane.btn.btn-sm.text-white.pull-right.btn-no-effect
-      i.fa.fa-comment
-      span#new-chat-notification.badge.badge-danger.very-small.font-weight-lighter(hidden='') New
-    button.btn.btn-sm.rounded-0.btn-no-effect.text-white
-      a.text-white.text-decoration-none(href='/')
-        i.fa.fa-sign-out-alt.text-white(title='Leave')
-#room-create.container-fluid(hidden='')
-  .row
-    .col-12.h2.mt-5.text-center Create Room
-  .row.mt-2
-    .col-12.text-center
-      span#err-msg.form-text.small.text-danger
-    .col-12.col-md-4.offset-md-4.mb-3
-      label(for='room-name') Room Name
-      input#room-name.form-control.rounded-0(type='text', placeholder='Room Name')
-    .col-12.col-md-4.offset-md-4.mb-3
-      label(for='your-name') Your Name
-      input#your-name.form-control.rounded-0(type='text', placeholder='Your Name')
-    .col-12.col-md-4.offset-md-4.mb-3
-      button#create-room.btn.btn-block.rounded-0.btn-info Create Room
-    #room-created.col-12.col-md-4.offset-md-4.mb-3
-#username-set.container-fluid(hidden='')
-  .row
-    .col-12.h4.mt-5.text-center Your Name
-  .row.mt-2
-    .col-12.text-center
-      span#err-msg-username.form-text.small.text-danger
-    .col-12.col-md-4.offset-md-4.mb-3
-      label(for='username') Your Name
-      input#username.form-control.rounded-0(type='text', placeholder='Your Name')
-    .col-12.col-md-4.offset-md-4.mb-3
-      button#enter-room.btn.btn-block.rounded-0.btn-info Enter Room
-.container-fluid.room-comm(hidden='')
-  .row
-    video#local.local-video.mirror-mode(volume='0', autoplay='', muted='')
-  .row
-    #main-section.col-md-12.main
-      #videos.row.mt-2.mb-2
-    #chat-pane.col-md-3.chat-col.d-print-none.mb-2.bg-info(hidden='')
-      .row
-        .col-12.text-center.h2.mb-3 CHAT
-      #chat-messages
-      form
-        .input-group.mb-3
-          textarea#chat-input.form-control.rounded-0.chat-box.border-info(rows='3', placeholder='Type here...')
-          #chat-input-btn.input-group-append
-            button.btn.btn-dark.rounded-0.border-info.btn-no-effect(type='button') Send
+  style.
+
+            body{
+                background: rgb(2,0,36);
+                background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(146,47,255,1) 83%);
+
+            }
+
+
+body
+  #recording-options-modal.custom-modal
+    .custom-modal-content
+      .row.text-center
+        .col-md-6.mb-2
+          span#record-video.record-option Record video
+        .col-md-6.mb-2
+          span#record-screen.record-option Record screen
+      .row.mt-3
+        .col-md-12.text-center
+          button#closeModal.btn.btn-outline-danger Close
+
+
+
+
+
+  nav.navbar.fixed-top.bg-info.sticky-top.navbar-dark.bg-dark  
+    a.navbar-brand(href='/')
+        img(src='/css/instagram.png' alt='' width='40' height='40')
+    .text-white zoom'eirb
+    a.btn.btn-dark.btn-sm.btn-danger(href='/deconnect' role='button' data-bs-toggle='button')
+        i.fa.fa-sign-out(aria-hidden='true' style="color:red; margin:6px;")
+            | Deconnect
+    .pull-right.room-comm(hidden='')
+      span.text-white.mr-5
+        | hello  
+        span#randomNumber
+
+        
+      button#toggle-video.btn.btn-sm.rounded-0.btn-no-effect(title='Hide Video')
+        i.fa.fa-video.text-white
+      button#toggle-mute.btn.btn-sm.rounded-0.btn-no-effect(title='Mute')
+        i.fa.fa-microphone-alt.text-white
+      button#share-screen.btn.btn-sm.rounded-0.btn-no-effect(title='Share screen')
+        i.fa.fa-desktop.text-white
+      button#record.btn.btn-sm.rounded-0.btn-no-effect(title='Record')
+        i.fa.fa-dot-circle.text-white
+      button#toggle-chat-pane.btn.btn-sm.text-white.pull-right.btn-no-effect
+        i.fa.fa-comment
+        span#new-chat-notification.badge.badge-danger.very-small.font-weight-lighter(hidden='') New
+      button.btn.btn-sm.rounded-0.btn-no-effect.text-white
+        a.text-white.text-decoration-none(href='/')
+          i.fa.fa-sign-out-alt.text-white(title='Leave')
+
+  #room-create.container-fluid(hidden='')
+    .row
+      .col-12.h2.mt-5.text-center(style="color: white;") Create Room
+    .row.mt-2
+      .col-12.text-center
+        span#err-msg.form-text.small.text-danger
+      .col-12.col-md-4.offset-md-4.mb-3
+        label(for='room-name' style="color: white;") Room Name
+        input#room-name.form-control.rounded-0(type='text', placeholder='Room Name')
+      .col-12.col-md-4.offset-md-4.mb-3
+        label(for='your-name' style="color: white;") Your Name
+        input#your-name.form-control.rounded-0(type='text', placeholder='Your Name')
+      .col-12.col-md-4.offset-md-4.mb-3
+        button#create-room.btn.btn-block.rounded-0.btn-dark Create Room
+      #room-created.col-12.col-md-4.offset-md-4.mb-3
+  #username-set.container-fluid(hidden='')
+    .row
+      .col-12.h4.mt-5.text-center(style="color: white;") Your Name
+    .row.mt-2
+      .col-12.text-center
+        span#err-msg-username.form-text.small.text-danger
+      .col-12.col-md-4.offset-md-4.mb-3
+        
+        input#username.form-control.rounded-0(type='text', placeholder='Your Name')
+      .col-12.col-md-4.offset-md-4.mb-3
+        button#enter-room.btn.btn-block.rounded-0.btn-info Enter Room
+  .container-fluid.room-comm(hidden='')
+    .row
+      video#local.local-video.mirror-mode(volume='0', autoplay='', muted='')
+    .row
+      #main-section.col-md-12.main
+        #videos.row.mt-2.mb-2
+      #chat-pane.col-md-3.chat-col.d-print-none.mb-2.bg-light(hidden='')
+        .row
+          .col-12.text-center.h2.mb-3 
+        #chat-messages
+        form
+          .input-group.mb-3
+            textarea#chat-input.form-control.rounded-0.chat-box.border-info(rows='3', placeholder='Type here...')
+            #chat-input-btn.input-group-append
+              button.btn.btn-dark.rounded-0.border-info.btn-no-effect(type='button') Send
+

@@ -77,11 +77,9 @@ app.get('/', async (req, res)=>{
           user : user,
           tag : req.session.tag
       }
-      res.render("index.pug");
+      res.render("index.pug", { user: user.pseudo});
   }
 });
-
-
 
 
 app.get('/inscription', (req, res)=>{
@@ -136,6 +134,12 @@ app.post('/authen', (req, res)=>{
       }
   });
 });
+
+
+app.get('/deconnect', (req, res)=>{
+    req.session.destroy()
+    res.redirect('/')
+  })
 
 
 
