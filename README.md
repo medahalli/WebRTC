@@ -69,7 +69,7 @@ openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out c
 # Create sslcert folder and move the files there:
 mkdir sslcert && mv *.pem sslcert
 ```
-4. Install the required dependencies:
+4. Install the required dependencies and launch the app:
 ```
 $ ./install.sh
 ```
