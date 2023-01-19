@@ -41,6 +41,43 @@ The client-side and the signaling server are communicating with each other via w
 The clients connect to the signaling server, exchange information with each other through the signaling server, and use the information to establish a peer-to-peer connection.
 
 The STUN/TURN servers are used as a fallback solution when a direct connection cannot be established.
+
+## Communication Protocol
+The Signaling server handles the followed WebSocket connections events : 
+
+1. subscribe : using the "on" method of a socket to listen for an event named "subscribe". When the event is triggered, the callback function is executed.
+Inside the callback function, the socket joins a room specified in the "data" object passed to the callback function with the join method. The socket also joins another room specified by the socketId data.socketId.It then check if the room specified by data.room exists with socket.adapter.rooms.has(data.room) and if it is true, it emits an event named "new user" to all the other members present in the room, using the to method. The event is emitted with an object containing the socketId of the user who joined the room.
+
+2. new user : When the 'new user' event is received, it emits 'newUserStart' event to the new user (data.socketId) with the current user's socketId as sender. It also adds the new user's socketId to the pc array, which is likely an array that keeps track of all the peer connections in the room. It then calls the init_user function, passing in true as the first argument, indicating that the current user will create an offer by emitting an 'sdp' event through the socket object.
+
+```
+An offer is a description of the media session that a client is willing to establish with another client. The media session includes the types of media (audio, video, etc.) that the client is willing to receive, the codecs that the client supports, and the transport and network-level details, such as the IP addresses and ports that the client is reachable at.
+
+In this case, the createOffer method is used to generate an offer, which is a RTCSessionDescription object. This object contains the description of the media session that the client is willing to establish with the remote peer. This offer is then set as the local description for the RTCPeerConnection object using the setLocalDescription method.
+
+The offer is then sent to the remote peer using the emit method with the 'sdp' event, along with the partnerName and the sender's socketId. The remote peer will receive this offer, and can use it to create an answer, which is another RTCSessionDescription object that describes the media session that the remote peer is willing to establish.
+```
+
+3. newUserStart : When the 'newUserStart' event is received by the client, it adds the sender's socketId to the pc array, and calls the init_user function, passing in false as the first argument, indicating that the current user will not create an offer and data.sender as the second argument, indicating that the connection is being established with the sender.
+
+4. sdp : This event is emitted after the local description of the peer connection has been set and it will be sent to the target user's socketId. The target user will be able to use this description to create an answer, complete the connection and establish a peer-to-peer connection with the current user.
+
+```
+An answer is a response to an offer, which is also a description of the media session that a client is willing to establish with another client. The media session includes the types of media (audio, video, etc.) that the client is willing to receive, the codecs that the client supports, and the transport and network-level details, such as the IP addresses and ports that the client is reachable at.
+
+In this case, it seems that the code provided only shows the offer creation process and the handling of the 'sdp' event. The answer creation process would be implemented on the other peer and would typically occur after it receives the offer from the first peer.
+
+The remote peer would use the setRemoteDescription method to set the received offer as the remote description for its RTCPeerConnection object. Then, it would use the createAnswer method to generate its own RTCSessionDescription object, which would contain the description of the media session that the remote peer is willing to establish. This answer would then be sent back to the first peer using the 'sdp' event as well.
+```
+
+Once both peers have exchanged offers and answers, they can proceed to exchange ICE candidates and establish the peer-to-peer connection.
+ 
+5. Ice Candidate : this is the event listener for the icecandidate event on the RTCPeerConnection object, which is triggered when a new ICE candidate is found. When this event is triggered, it emits an 'ice candidates' event through the socket object,it's used to establish the peer-to-peer connection between the users.
+
+```
+ICE candidates are used by WebRTC to establish a peer-to-peer connection between clients. ICE (Interactive Connectivity Establishment) is a technique used to traverse NAT (Network Address Translation) routers and firewalls to establish a connection. Each client generates a set of ICE candidates, which are IP addresses and ports that the client can be reached at. The clients then exchange their ICE candidates, and use them to establish a connection
+```
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -82,6 +119,7 @@ $ ./install.sh
 - [Node.js](https://nodejs.org/) - JavaScript runtime
 - [Socket.io](https://socket.io/) - Real-time communication library
 - [Pug](https://pugjs.org/) - Templating engine for Node.js
+- [autolink.js](https://github.com/bryanwoods/autolink-js) - A small (about half a kilobyte), simple, and tested JavaScript tool that takes a string of text, finds URLs within it, and hyperlinks them
 
 ## Authors
 
