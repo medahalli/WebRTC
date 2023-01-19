@@ -4,6 +4,7 @@ npm install pug;
 npm install express-session; 
 npm install connect-sqlite3; 
 npm install sqlite3 sqlite; 
+npm install bcrypt; 
 node install.js; 
 node db.js; 
 node db_debug.js; 
