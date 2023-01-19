@@ -1,10 +1,11 @@
 
-import h from './helpers.js';
+import h from './functions.js';
 
 window.addEventListener( 'load', () => {
     const room = h.getQString( location.href, 'room' );
     const username = sessionStorage.getItem( 'username' );
 
+    // checks for the existence of two values: "room" and "username" to make the element visible
     if ( !room ) {
         document.querySelector( '#room-create' ).attributes.removeNamedItem( 'hidden' );
     }
@@ -14,10 +15,11 @@ window.addEventListener( 'load', () => {
     }
 
     else {
-        let commElem = document.getElementsByClassName( 'room-comm' );
+        let commElement = document.getElementsByClassName( 'room-comm' );
 
-        for ( let i = 0; i < commElem.length; i++ ) {
-            commElem[i].attributes.removeNamedItem( 'hidden' );
+        // make elements visible
+        for ( let i = 0; i < commElement.length; i++ ) {
+            commElement[i].attributes.removeNamedItem( 'hidden' );
         }
 
         var pc = [];
@@ -25,14 +27,14 @@ window.addEventListener( 'load', () => {
         let socket = io( '/stream' );
 
         var socketId = '';
-        var randomNumber = `__${h.generateRandomString()}__${h.generateRandomString()}__`;
-        var myStream = '';
+        var randomNumber = `__${h.genRandStr()}__${h.genRandStr()}__`;
+        var My_Stream = '';
         var screen = '';
         var recordedStream = [];
-        var mediaRecorder = '';
+        var record_media = '';
 
         //Get user video by default
-        getAndSetUserStream();
+        UserStream();
 
 
         socket.on( 'connect', () => {
@@ -50,13 +52,15 @@ window.addEventListener( 'load', () => {
             socket.on( 'new user', ( data ) => {
                 socket.emit( 'newUserStart', { to: data.socketId, sender: socketId } );
                 pc.push( data.socketId );
-                init( true, data.socketId );
+                // the members of the room creates an offer to the new user and add him
+                init_user( true, data.socketId );
             } );
 
 
             socket.on( 'newUserStart', ( data ) => {
                 pc.push( data.sender );
-                init( false, data.sender );
+                // the new user add room users 
+                init_user( false, data.sender );
             } );
 
 
@@ -69,13 +73,13 @@ window.addEventListener( 'load', () => {
                 if ( data.description.type === 'offer' ) {
                     data.description ? await pc[data.sender].setRemoteDescription( new RTCSessionDescription( data.description ) ) : '';
 
-                    h.getUserFullMedia().then( async ( stream ) => {
+                    h.get_User_Media().then( async ( stream ) => {
                         if ( !document.getElementById( 'local' ).srcObject ) {
-                            h.setLocalStream( stream );
+                            h.stream_local( stream );
                         }
 
                         //save my stream
-                        myStream = stream;
+                        My_Stream = stream;
 
                         stream.getTracks().forEach( ( track ) => {
                             pc[data.sender].addTrack( track, stream );
@@ -98,24 +102,24 @@ window.addEventListener( 'load', () => {
 
 
             socket.on( 'chat', ( data ) => {
-                h.addChat( data, 'remote' );
+                h.Add_Chat( data, 'remote' );
             } );
         } );
 
 
-        function getAndSetUserStream() {
-            h.getUserFullMedia().then( ( stream ) => {
+        function UserStream() {
+            h.get_User_Media().then( ( stream ) => {
                 //save my stream
-                myStream = stream;
+                My_Stream = stream;
 
-                h.setLocalStream( stream );
+                h.stream_local( stream );
             } ).catch( ( e ) => {
                 console.error( `stream error: ${ e }` );
             } );
         }
 
 
-        function sendMsg( msg ) {
+        function send_message( msg ) {
             let data = {
                 room: room,
                 msg: msg,
@@ -126,36 +130,36 @@ window.addEventListener( 'load', () => {
             socket.emit( 'chat', data );
 
             //add localchat
-            h.addChat( data, 'local' );
+            h.Add_Chat( data, 'local' );
         }
 
 
 
-        function init( createOffer, partnerName ) {
-            pc[partnerName] = new RTCPeerConnection( h.getIceServer() );
+        function init_user( createOffer, roommate_name ) {
+            pc[roommate_name] = new RTCPeerConnection( h.getIceServer() );
 
             if ( screen && screen.getTracks().length ) {
                 screen.getTracks().forEach( ( track ) => {
-                    pc[partnerName].addTrack( track, screen );//should trigger negotiationneeded event
+                    pc[roommate_name].addTrack( track, screen );//should trigger negotiationneeded event
                 } );
             }
 
-            else if ( myStream ) {
-                myStream.getTracks().forEach( ( track ) => {
-                    pc[partnerName].addTrack( track, myStream );//should trigger negotiationneeded event
+            else if ( My_Stream ) {
+                My_Stream.getTracks().forEach( ( track ) => {
+                    pc[roommate_name].addTrack( track, My_Stream );//should trigger negotiationneeded event
                 } );
             }
 
             else {
-                h.getUserFullMedia().then( ( stream ) => {
+                h.get_User_Media().then( ( stream ) => {
                     //save my stream
-                    myStream = stream;
+                    My_Stream = stream;
 
                     stream.getTracks().forEach( ( track ) => {
-                        pc[partnerName].addTrack( track, stream );//should trigger negotiationneeded event
+                        pc[roommate_name].addTrack( track, stream );//should trigger negotiationneeded event
                     } );
 
-                    h.setLocalStream( stream );
+                    h.stream_local( stream );
                 } ).catch( ( e ) => {
                     console.error( `stream error: ${ e }` );
                 } );
@@ -165,81 +169,81 @@ window.addEventListener( 'load', () => {
 
             //create offer
             if ( createOffer ) {
-                pc[partnerName].onnegotiationneeded = async () => {
-                    let offer = await pc[partnerName].createOffer();
+                pc[roommate_name].onnegotiationneeded = async () => {
+                    let offer = await pc[roommate_name].createOffer();
 
-                    await pc[partnerName].setLocalDescription( offer );
+                    await pc[roommate_name].setLocalDescription( offer );
 
-                    socket.emit( 'sdp', { description: pc[partnerName].localDescription, to: partnerName, sender: socketId } );
+                    socket.emit( 'sdp', { description: pc[roommate_name].localDescription, to: roommate_name, sender: socketId } );
                 };
             }
 
 
 
             //send ice candidate to partnerNames
-            pc[partnerName].onicecandidate = ( { candidate } ) => {
-                socket.emit( 'ice candidates', { candidate: candidate, to: partnerName, sender: socketId } );
+            pc[roommate_name].onicecandidate = ( { candidate } ) => {
+                socket.emit( 'ice candidates', { candidate: candidate, to: roommate_name, sender: socketId } );
             };
 
 
 
-            //add
-            pc[partnerName].ontrack = ( e ) => {
+            //add user video
+            pc[roommate_name].ontrack = ( e ) => {
                 let str = e.streams[0];
-                if ( document.getElementById( `${ partnerName }-video` ) ) {
-                    document.getElementById( `${ partnerName }-video` ).srcObject = str;
+                if ( document.getElementById( `${ roommate_name }-video` ) ) {
+                    document.getElementById( `${ roommate_name }-video` ).srcObject = str;
                 }
 
                 else {
                     //video elem
-                    let newVid = document.createElement( 'video' );
-                    newVid.id = `${ partnerName }-video`;
-                    newVid.srcObject = str;
-                    newVid.autoplay = true;
-                    newVid.className = 'remote-video';
+                    let new_video = document.createElement( 'video' );
+                    new_video.id = `${ roommate_name }-video`;
+                    new_video.srcObject = str;
+                    new_video.autoplay = true;
+                    new_video.className = 'remote-video';
 
                     //video controls elements
-                    let controlDiv = document.createElement( 'div' );
-                    controlDiv.className = 'remote-video-controls';
-                    controlDiv.innerHTML = `<i class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
+                    let control_div = document.createElement( 'div' );
+                    control_div.className = 'remote-video-controls';
+                    control_div.innerHTML = `<i class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
                         <i class="fa fa-expand text-white expand-remote-video" title="Expand"></i>`;
 
                     //create a new div for card
-                    let cardDiv = document.createElement( 'div' );
-                    cardDiv.className = 'card card-sm';
-                    cardDiv.id = partnerName;
-                    cardDiv.appendChild( newVid );
-                    cardDiv.appendChild( controlDiv );
+                    let new_card_div = document.createElement( 'div' );
+                    new_card_div.className = 'card card-sm';
+                    new_card_div.id = roommate_name;
+                    new_card_div.appendChild( new_video );
+                    new_card_div.appendChild( control_div );
 
                     //put div in main-section elem
-                    document.getElementById( 'videos' ).appendChild( cardDiv );
+                    document.getElementById( 'videos' ).appendChild( new_card_div );
 
-                    h.adjustVideoElemSize();
+                    h.adjust_Size();
                 }
             };
 
 
 
-            pc[partnerName].onconnectionstatechange = ( d ) => {
-                switch ( pc[partnerName].iceConnectionState ) {
+            pc[roommate_name].onconnectionstatechange = ( d ) => {
+                switch ( pc[roommate_name].iceConnectionState ) {
                     case 'disconnected':
                     case 'failed':
-                        h.closeVideo( partnerName );
+                        h.closeVideo( roommate_name );
                         break;
 
                     case 'closed':
-                        h.closeVideo( partnerName );
+                        h.closeVideo( roommate_name );
                         break;
                 }
             };
 
 
 
-            pc[partnerName].onsignalingstatechange = ( d ) => {
-                switch ( pc[partnerName].signalingState ) {
+            pc[roommate_name].onsignalingstatechange = ( d ) => {
+                switch ( pc[roommate_name].signalingState ) {
                     case 'closed':
                         console.log( "Signalling state is 'closed'" );
-                        h.closeVideo( partnerName );
+                        h.closeVideo( roommate_name );
                         break;
                 }
             };
@@ -247,23 +251,23 @@ window.addEventListener( 'load', () => {
 
 
 
-        function shareScreen() {
-            h.shareScreen().then( ( stream ) => {
-                h.toggleShareIcons( true );
+        function screen_share() {
+            h.screen_share().then( ( stream ) => {
+                h.toggle_share_icons( true );
 
                 //disable the video toggle btns while sharing screen. This is to ensure clicking on the btn does not interfere with the screen sharing
                 //It will be enabled was user stopped sharing screen
-                h.toggleVideoBtnDisabled( true );
+                h.toggle_video_button_disabled( true );
 
                 //save my screen stream
                 screen = stream;
 
                 //share the new stream with all partners
-                broadcastNewTracks( stream, 'video', false );
+                New_tracks_to_broadcast( stream, 'video', false );
 
                 //When the stop sharing button shown by the browser is clicked
                 screen.getVideoTracks()[0].addEventListener( 'ended', () => {
-                    stopSharingScreen();
+                    stop_screen_share();
                 } );
             } ).catch( ( e ) => {
                 console.error( e );
@@ -272,17 +276,17 @@ window.addEventListener( 'load', () => {
 
 
 
-        function stopSharingScreen() {
+        function stop_screen_share() {
             //enable video toggle btn
-            h.toggleVideoBtnDisabled( false );
+            h.toggle_video_button_disabled( false );
 
             return new Promise( ( res, rej ) => {
                 screen.getTracks().length ? screen.getTracks().forEach( track => track.stop() ) : '';
 
                 res();
             } ).then( () => {
-                h.toggleShareIcons( false );
-                broadcastNewTracks( myStream, 'video' );
+                h.toggle_share_icons( false );
+                New_tracks_to_broadcast( My_Stream, 'video' );
             } ).catch( ( e ) => {
                 console.error( e );
             } );
@@ -290,22 +294,24 @@ window.addEventListener( 'load', () => {
 
 
 
-        function broadcastNewTracks( stream, type, mirrorMode = true ) {
-            h.setLocalStream( stream, mirrorMode );
+        function New_tracks_to_broadcast( stream, type, mirrorMode = true ) {
+            h.stream_local( stream, mirrorMode );
 
             let track = type == 'audio' ? stream.getAudioTracks()[0] : stream.getVideoTracks()[0];
 
             for ( let p in pc ) {
                 let pName = pc[p];
-
+                /*This is an important check because if the property value is not an object, 
+                it will cause an error when trying to call the track_replace function, 
+                which expects an RTCPeerConnection object as an argument.*/
                 if ( typeof pc[pName] == 'object' ) {
-                    h.replaceTrack( track, pc[pName] );
+                    h.track_replace( track, pc[pName] );
                 }
             }
         }
 
 
-        function toggleRecordingIcons( isRecording ) {
+        function toggle_recording_icons( isRecording ) {
             let e = document.getElementById( 'record' );
 
             if ( isRecording ) {
@@ -322,29 +328,29 @@ window.addEventListener( 'load', () => {
         }
 
 
-        function startRecording( stream ) {
-            mediaRecorder = new MediaRecorder( stream, {
+        function record_start( stream ) {
+            record_media = new MediaRecorder( stream, {
                 mimeType: 'video/webm;codecs=vp9'
             } );
 
-            mediaRecorder.start( 1000 );
-            toggleRecordingIcons( true );
+            record_media.start( 1000 );
+            toggle_recording_icons( true );
 
-            mediaRecorder.ondataavailable = function ( e ) {
+            record_media.ondataavailable = function ( e ) {
                 recordedStream.push( e.data );
             };
 
-            mediaRecorder.onstop = function () {
-                toggleRecordingIcons( false );
+            record_media.onstop = function () {
+                toggle_recording_icons( false );
 
-                h.saveRecordedStream( recordedStream, username );
+                h.save_stream_recorded( recordedStream, username );
 
                 setTimeout( () => {
                     recordedStream = [];
                 }, 3000 );
             };
 
-            mediaRecorder.onerror = function ( e ) {
+            record_media.onerror = function ( e ) {
                 console.error( e );
             };
         }
@@ -352,7 +358,7 @@ window.addEventListener( 'load', () => {
         document.getElementById('chat-input-btn').addEventListener('click',(e) => {
             console.log("here: ",document.getElementById('chat-input').value)
             if (  document.getElementById('chat-input').value.trim()  ) {
-                sendMsg( document.getElementById('chat-input').value );
+                send_message( document.getElementById('chat-input').value );
 
                 setTimeout( () => {
                     document.getElementById('chat-input').value = '';
@@ -365,7 +371,7 @@ window.addEventListener( 'load', () => {
             if ( e.which === 13 && ( e.target.value.trim() ) ) {
                 e.preventDefault();
 
-                sendMsg( e.target.value );
+                send_message( e.target.value );
 
                 setTimeout( () => {
                     e.target.value = '';
@@ -380,12 +386,12 @@ window.addEventListener( 'load', () => {
 
             let elem = document.getElementById( 'toggle-video' );
 
-            if ( myStream.getVideoTracks()[0].enabled ) {
+            if ( My_Stream.getVideoTracks()[0].enabled ) {
                 e.target.classList.remove( 'fa-video' );
                 e.target.classList.add( 'fa-video-slash' );
                 elem.setAttribute( 'title', 'Show Video' );
 
-                myStream.getVideoTracks()[0].enabled = false;
+                My_Stream.getVideoTracks()[0].enabled = false;
             }
 
             else {
@@ -393,10 +399,10 @@ window.addEventListener( 'load', () => {
                 e.target.classList.add( 'fa-video' );
                 elem.setAttribute( 'title', 'Hide Video' );
 
-                myStream.getVideoTracks()[0].enabled = true;
+                My_Stream.getVideoTracks()[0].enabled = true;
             }
 
-            broadcastNewTracks( myStream, 'video' );
+            New_tracks_to_broadcast( My_Stream, 'video' );
         } );
 
 
@@ -406,12 +412,12 @@ window.addEventListener( 'load', () => {
 
             let elem = document.getElementById( 'toggle-mute' );
 
-            if ( myStream.getAudioTracks()[0].enabled ) {
+            if ( My_Stream.getAudioTracks()[0].enabled ) {
                 e.target.classList.remove( 'fa-microphone-alt' );
                 e.target.classList.add( 'fa-microphone-alt-slash' );
                 elem.setAttribute( 'title', 'Unmute' );
 
-                myStream.getAudioTracks()[0].enabled = false;
+                My_Stream.getAudioTracks()[0].enabled = false;
             }
 
             else {
@@ -419,10 +425,10 @@ window.addEventListener( 'load', () => {
                 e.target.classList.add( 'fa-microphone-alt' );
                 elem.setAttribute( 'title', 'Mute' );
 
-                myStream.getAudioTracks()[0].enabled = true;
+                My_Stream.getAudioTracks()[0].enabled = true;
             }
 
-            broadcastNewTracks( myStream, 'audio' );
+            New_tracks_to_broadcast( My_Stream, 'audio' );
         } );
 
 
@@ -431,11 +437,11 @@ window.addEventListener( 'load', () => {
             e.preventDefault();
 
             if ( screen && screen.getVideoTracks().length && screen.getVideoTracks()[0].readyState != 'ended' ) {
-                stopSharingScreen();
+                stop_screen_share();
             }
 
             else {
-                shareScreen();
+                screen_share();
             }
         } );
 
@@ -446,31 +452,31 @@ window.addEventListener( 'load', () => {
              * Ask user what they want to record.
              * Get the stream based on selection and start recording
              */
-            if ( !mediaRecorder || mediaRecorder.state == 'inactive' ) {
-                h.toggleModal( 'recording-options-modal', true );
+            if ( !record_media || record_media.state == 'inactive' ) {
+                h.toggle_modal( 'recording-options-modal', true );
             }
 
-            else if ( mediaRecorder.state == 'paused' ) {
-                mediaRecorder.resume();
+            else if ( record_media.state == 'paused' ) {
+                record_media.resume();
             }
 
-            else if ( mediaRecorder.state == 'recording' ) {
-                mediaRecorder.stop();
+            else if ( record_media.state == 'recording' ) {
+                record_media.stop();
             }
         } );
 
 
         //When user choose to record screen
         document.getElementById( 'record-screen' ).addEventListener( 'click', () => {
-            h.toggleModal( 'recording-options-modal', false );
+            h.toggle_modal( 'recording-options-modal', false );
 
             if ( screen && screen.getVideoTracks().length ) {
-                startRecording( screen );
+                record_start( screen );
             }
 
             else {
-                h.shareScreen().then( ( screenStream ) => {
-                    startRecording( screenStream );
+                h.screen_share().then( ( screenStream ) => {
+                    record_start( screenStream );
                 } ).catch( () => { } );
             }
         } );
@@ -478,15 +484,15 @@ window.addEventListener( 'load', () => {
 
         //When user choose to record own video
         document.getElementById( 'record-video' ).addEventListener( 'click', () => {
-            h.toggleModal( 'recording-options-modal', false );
+            h.toggle_modal( 'recording-options-modal', false );
 
-            if ( myStream && myStream.getTracks().length ) {
-                startRecording( myStream );
+            if ( My_Stream && My_Stream.getTracks().length ) {
+                record_start( My_Stream );
             }
 
             else {
-                h.getUserFullMedia().then( ( videoStream ) => {
-                    startRecording( videoStream );
+                h.get_User_Media().then( ( videoStream ) => {
+                    record_start( videoStream );
                 } ).catch( () => { } );
             }
         } );

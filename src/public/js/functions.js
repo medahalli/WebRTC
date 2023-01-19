@@ -1,5 +1,5 @@
 export default {
-    generateRandomString() {
+    genRandStr() {
         const crypto = window.crypto || window.msCrypto;
         let array = new Uint32Array(1);
         
@@ -53,7 +53,7 @@ export default {
     },
 
 
-    getUserFullMedia() {
+    get_User_Media() {
         if ( this.userMediaAvailable() ) {
             return navigator.mediaDevices.getUserMedia( {
                 video: true,
@@ -87,7 +87,7 @@ export default {
 
 
 
-    shareScreen() {
+    screen_share() {
         if ( this.userMediaAvailable() ) {
             return navigator.mediaDevices.getDisplayMedia( {
                 video: {
@@ -139,7 +139,7 @@ export default {
     },
 
 
-    addChat( data, senderType ) {
+    Add_Chat( data, senderType ) {
         let chatMsgDiv = document.querySelector( '#chat-messages' );
         let contentAlign = 'justify-content-end';
         let senderName = 'You';
@@ -150,7 +150,7 @@ export default {
             senderName = data.sender;
             msgBg = '';
 
-            this.toggleChatNotificationBadge();
+            this.toggle_chat_notification_badge();
         }
 
         let infoDiv = document.createElement( 'div' );
@@ -181,7 +181,7 @@ export default {
     },
 
 
-    toggleChatNotificationBadge() {
+    toggle_chat_notification_badge() {
         if ( document.querySelector( '#chat-pane' ).classList.contains( 'chat-opened' ) ) {
             document.querySelector( '#new-chat-notification' ).setAttribute( 'hidden', true );
         }
@@ -193,7 +193,7 @@ export default {
 
 
 
-    replaceTrack( stream, recipientPeer ) {
+    track_replace( stream, recipientPeer ) {
         let sender = recipientPeer.getSenders ? recipientPeer.getSenders().find( s => s.track && s.track.kind === stream.kind ) : false;
 
         sender ? sender.replaceTrack( stream ) : '';
@@ -201,7 +201,7 @@ export default {
 
 
 
-    toggleShareIcons( share ) {
+    toggle_share_icons( share ) {
         let shareIconElem = document.querySelector( '#share-screen' );
 
         if ( share ) {
@@ -218,19 +218,19 @@ export default {
     },
 
 
-    toggleVideoBtnDisabled( disabled ) {
+    toggle_video_button_disabled( disabled ) {
         document.getElementById( 'toggle-video' ).disabled = disabled;
     },
 
 
-    maximiseStream( e ) {
+    maximise_stream( e ) {
         let elem = e.target.parentElement.previousElementSibling;
 
         elem.requestFullscreen() || elem.mozRequestFullScreen() || elem.webkitRequestFullscreen() || elem.msRequestFullscreen();
     },
 
 
-    singleStreamToggleMute( e ) {
+    single_stream_toggle_mute( e ) {
         if ( e.target.classList.contains( 'fa-microphone' ) ) {
             e.target.parentElement.previousElementSibling.muted = true;
             e.target.classList.add( 'fa-microphone-slash' );
@@ -245,7 +245,7 @@ export default {
     },
 
 
-    saveRecordedStream( stream, user ) {
+    save_stream_recorded( stream, user ) {
         let blob = new Blob( stream, { type: 'video/webm' } );
 
         let file = new File( [blob], `${ user }-${ moment().unix() }-record.webm` );
@@ -254,7 +254,7 @@ export default {
     },
 
 
-    toggleModal( id, show ) {
+    toggle_modal( id, show ) {
         let el = document.getElementById( id );
 
         if ( show ) {
@@ -270,7 +270,7 @@ export default {
 
 
 
-    setLocalStream( stream, mirrorMode = true ) {
+    stream_local( stream, mirrorMode = true ) {
         const localVidElem = document.getElementById( 'local' );
 
         localVidElem.srcObject = stream;
@@ -278,7 +278,7 @@ export default {
     },
 
 
-    adjustVideoElemSize() {
+    adjust_Size() {
         let elem = document.getElementsByClassName( 'card' );
         let totalRemoteVideosDesktop = elem.length;
         let newWidth = totalRemoteVideosDesktop <= 2 ? '50%' : (

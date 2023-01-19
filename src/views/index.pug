@@ -7,7 +7,7 @@ head
   link(rel='stylesheet', href='/css/app.css', type='text/css')
   script(src='/socket.io/socket.io.js')
   link(rel='icon'  href='css/logo.png')
-  script(type='module', src='js/rtc.js')
+  script(type='module', src='js/client.js')
   script(type='module', src='js/events.js')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js', integrity='sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4=', crossorigin='anonymous')
   script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
@@ -81,6 +81,7 @@ body
         input#your-name.form-control.rounded-0(type='text', placeholder='Your Name')
       .col-12.col-md-4.offset-md-4.mb-3
         button#create-room.btn.btn-block.rounded-0.btn-dark Create Room
+      .col-12.h2.mt-5.text-center(style="color: white;") If you wish join a room please enter again the room link
       #room-created.col-12.col-md-4.offset-md-4.mb-3
   #username-set.container-fluid(hidden='')
     .row

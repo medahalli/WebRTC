@@ -1,4 +1,4 @@
-import helpers from './helpers.js';
+import functions from './functions.js';
 
 window.addEventListener( 'load', () => {
     //When the chat icon is clicked
@@ -23,7 +23,7 @@ window.addEventListener( 'load', () => {
         //remove the 'New' badge on chat icon (if any) once chat is opened.
         setTimeout( () => {
             if ( document.querySelector( '#chat-pane' ).classList.contains( 'chat-opened' ) ) {
-                helpers.toggleChatNotificationBadge();
+                functions.toggle_chat_notification_badge();
             }
         }, 300 );
     } );
@@ -64,7 +64,7 @@ window.addEventListener( 'load', () => {
             sessionStorage.setItem( 'username', yourName );
 
             //create room link
-            let roomLink = `${ location.origin }?room=${ roomName.trim().replace( ' ', '_' ) }_${ helpers.generateRandomString() }`;
+            let roomLink = `${ location.origin }?room=${ roomName.trim().replace( ' ', '_' ) }_${ functions.genRandStr() }`;
 
             //show message with link to room
 
@@ -108,16 +108,16 @@ window.addEventListener( 'load', () => {
 
     document.addEventListener( 'click', ( e ) => {
         if ( e.target && e.target.classList.contains( 'expand-remote-video' ) ) {
-            helpers.maximiseStream( e );
+            functions.maximise_stream( e );
         }
 
         else if ( e.target && e.target.classList.contains( 'mute-remote-mic' ) ) {
-            helpers.singleStreamToggleMute( e );
+            functions.single_stream_toggle_mute( e );
         }
     } );
 
 
     document.getElementById( 'closeModal' ).addEventListener( 'click', () => {
-        helpers.toggleModal( 'recording-options-modal', false );
+        functions.toggle_modal( 'recording-options-modal', false );
     } );
 } );

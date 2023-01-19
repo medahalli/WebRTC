@@ -1,6 +1,6 @@
 let express = require( 'express' );
 let app = express();
-let stream = require( './ws/stream' );
+let stream = require( './ws/signaling_server' );
 let path = require( 'path' );
 
 var sqlite3 = require('sqlite3').verbose();
@@ -58,9 +58,6 @@ app.use(session(
         saveUninitialized: true
     }
 ))
-
-
-
 
 
 app.get('/', async (req, res)=>{
