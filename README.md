@@ -126,7 +126,7 @@ $ ./install.sh
 - **Fellah Hicham**
 - **Ahalli Mohamed**
 - **Smaili Nabil**
-- **Rajae Sefrioui**
+- **Rajae Safraoui**
 - **Lamghari Taha**
 
 ## License
